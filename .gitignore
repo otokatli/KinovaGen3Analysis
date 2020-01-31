@@ -323,3 +323,5 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/c,vim,c++,linux,macos,emacs,python,windows
 
+# Ignore the output folder
+src/
