@@ -16,8 +16,10 @@ u1p, u2p, u3p, u4p, u5p, u6p, u7p = dynamicsymbols("u1 u2 u3 u4 u5 u6 u7", 1)
 q = [q1, q2, q3, q4, q5, q6, q7]
 u = [u1, u2, u3, u4, u5, u6, u7]
 
+# Torques associated with each joint
 TA, TB, TC, TD, TE, TF, TG = symbols("TA, TB, TC, TD, TE, TF, TG")
 
+# Reference frames
 N = ReferenceFrame("N")
 A = N.orientnew("A", "Body", [pi, 0, q1], "123")
 B = A.orientnew("B", "Body", [pi / 2, 0, q2], "123")
@@ -29,6 +31,7 @@ G = F.orientnew("G", "Body", [-pi / 2, 0, q7], "123")
 # The interface module's reference frame
 H = G.orientnew("H", "Body", [pi, 0, 0], "123")
 
+# Unit for distance: meter
 P0 = Point("O")
 P1 = P0.locatenew("P1", 0.1564 * N.z)
 P2 = P1.locatenew("P2", 0.0054 * A.y - 0.1284 * A.z)
@@ -41,6 +44,7 @@ P8 = P7.locatenew("P8", -0.0615 * G.z)
 # End-effector position  (mid-point of the gripper)
 P9 = P8.locatenew("P9", 0.12 * H.z)
 
+# Mass centers
 Ao = P1.locatenew("Ao", -0.000023 * A.x - 0.010364 * A.y - 0.07336 * A.z)
 Bo = P2.locatenew("Bo", -0.000044 * B.x - 0.09958 * B.y - 0.013278 * B.z)
 Co = P3.locatenew("Co", -0.000044 * C.x - 0.006641 * C.y - 0.117892 * C.z)
@@ -50,6 +54,7 @@ Fo = P6.locatenew("Fo", 0.000001 * F.x - 0.045483 * F.y - 0.009650 * F.z)
 Go = P7.locatenew("Go", -0.000281 * G.x - 0.011402 * G.y - 0.029798 * G.z)
 Ho = P8.locatenew("Ho", 0.058 * H.z)
 
+# Velocities
 P0.set_vel(N, 0)
 P1.v2pt_theory(P0, N, N)
 P2.v2pt_theory(P1, N, A)
