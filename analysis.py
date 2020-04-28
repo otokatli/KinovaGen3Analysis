@@ -1,4 +1,4 @@
-from sympy import cse, Dummy, Matrix, pi, symbols, zeros
+from sympy import cse, Matrix, pi, symbols
 from sympy.physics.mechanics import dynamicsymbols, Point, ReferenceFrame
 from sympy.printing.pycode import NumPyPrinter
 from sympy.printing.cxxcode import CXX17CodePrinter
@@ -55,7 +55,7 @@ Go = P7.locatenew("Go", -0.000281 * G.x - 0.011402 * G.y - 0.029798 * G.z)
 Ho = P8.locatenew("Ho", 0.058 * H.z)
 
 # Velocities
-P0.set_vel(N, 0)
+P0.set_vel(N, 0 * N.x + 0 * N.y + 0 * N.z)
 P1.v2pt_theory(P0, N, N)
 P2.v2pt_theory(P1, N, A)
 P3.v2pt_theory(P2, N, B)
@@ -102,6 +102,7 @@ dummy_dict = dict(
     )
 )
 
+
 # End-effector position
 x = P9.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
 
@@ -124,6 +125,7 @@ Jt = (
 )
 
 # Rotational part of the Jacobian
+# TODO: the code below is probably resulting in a wrong jacobian
 Jr = Matrix(
     [
         [
@@ -157,7 +159,8 @@ Jr = Matrix(
 )
 
 # Complete Jacobian of the robot
-J = Jt.col_join(Jr)
+# J = Jt.col_join(Jr)
+J = Jt
 
 J_compact = cse(J)
 
