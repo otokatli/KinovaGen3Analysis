@@ -125,42 +125,40 @@ Jt = (
 )
 
 # Rotational part of the Jacobian
-# TODO: the code below is probably resulting in a wrong jacobian
 Jr = Matrix(
     [
         [
-            H.ang_vel_in(N).to_matrix(N)[0].coeff(q1p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[0].coeff(q2p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[0].coeff(q3p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[0].coeff(q4p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[0].coeff(q5p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[0].coeff(q6p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[0].coeff(q7p).subs(dummy_dict),
+            H.ang_vel_in(N).to_matrix(N)[0].coeff(q1p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[0].coeff(q2p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[0].coeff(q3p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[0].coeff(q4p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[0].coeff(q5p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[0].coeff(q6p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[0].coeff(q7p).subs(dummy_dict).trigsimp(),
         ],
         [
-            H.ang_vel_in(N).to_matrix(N)[1].coeff(q1p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[1].coeff(q2p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[1].coeff(q3p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[1].coeff(q4p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[1].coeff(q5p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[1].coeff(q6p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[1].coeff(q7p).subs(dummy_dict),
+            H.ang_vel_in(N).to_matrix(N)[1].coeff(q1p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[1].coeff(q2p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[1].coeff(q3p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[1].coeff(q4p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[1].coeff(q5p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[1].coeff(q6p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[1].coeff(q7p).subs(dummy_dict).trigsimp(),
         ],
         [
-            H.ang_vel_in(N).to_matrix(N)[2].coeff(q1p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[2].coeff(q2p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[2].coeff(q3p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[2].coeff(q4p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[2].coeff(q5p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[2].coeff(q6p).subs(dummy_dict),
-            H.ang_vel_in(N).to_matrix(N)[2].coeff(q7p).subs(dummy_dict),
+            H.ang_vel_in(N).to_matrix(N)[2].coeff(q1p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[2].coeff(q2p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[2].coeff(q3p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[2].coeff(q4p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[2].coeff(q5p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[2].coeff(q6p).subs(dummy_dict).trigsimp(),
+            H.ang_vel_in(N).to_matrix(N)[2].coeff(q7p).subs(dummy_dict).trigsimp(),
         ],
     ]
 )
 
 # Complete Jacobian of the robot
-# J = Jt.col_join(Jr)
-J = Jt
+J = Jt.col_join(Jr)
 
 J_compact = cse(J)
 
