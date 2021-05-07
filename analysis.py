@@ -1,7 +1,9 @@
+import os
+from pathlib import Path
 from sympy import cse, Matrix, pi, symbols
 from sympy.physics.mechanics import dynamicsymbols, Point, ReferenceFrame
-from sympy.printing.pycode import NumPyPrinter
-from sympy.printing.cxxcode import CXX17CodePrinter
+from sympy.printing.numpy import NumPyPrinter
+from sympy.printing.cxx import CXX17CodePrinter
 
 
 printerPy = NumPyPrinter()
@@ -163,6 +165,18 @@ J = Jt.col_join(Jr)
 J_compact = cse(J)
 
 # Write to files (python, cpp)
+# Create output folder
+src_folder = os.path.join('.', 'src')
+Path(src_folder).mkdir(exist_ok=True)
+
+# Create the output folder for python codes
+src_folder_py = os.path.join(src_folder, 'python')
+Path(src_folder_py).mkdir(exist_ok=True)
+
+# Create the output folder for python codes
+src_folder_cpp = os.path.join(src_folder, 'cpp')
+Path(src_folder_cpp).mkdir(exist_ok=True)
+
 with open("./src/python/forwardKinematics.py", "w") as f:
     for i in pose_compact[0]:
         print(str(i[0]) + " = " + str(i[1]), file=f)
