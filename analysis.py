@@ -53,6 +53,15 @@ P6 = P5.locatenew("P6", -0.1059 * E.z)
 P7 = P6.locatenew("P7", -0.1059 * F.y)
 P8 = P7.locatenew("P8", -0.0615 * G.z)
 
+# Mid-point of each link
+Ao_half = P1.locatenew("P1_half", 0.0054 / 2 * A.y - 0.1284 / 2 * A.z)
+Bo_half = P2.locatenew("P2_half", -0.2014 / 2 * B.y - 0.0064 / 2 * B.z)
+Co_half = P3.locatenew("P3_half", 0.0064 / 2 * C.y - 0.2104 / 2 * C.z)
+Do_half = P4.locatenew("P4_half", -0.2084 / 2 * D.y - 0.0064 / 2 * D.z)
+Eo_half = P5.locatenew("P5_half", -0.1059 / 2 * E.z)
+Fo_half = P6.locatenew("P6_half", -0.1059 / 2 * F.y)
+Go_half = P7.locatenew("P7_half", -0.0615 / 2 * G.z)
+
 # End-effector position  (tcp)
 if gripper:
     P9 = P8.locatenew("P9", 0.12 * H.z)
@@ -106,6 +115,40 @@ dummy_dict = dict(zip(q + u, ["q1", "q2", "q3", "q4", "q5", "q6", "q7",
 # End-effector position
 x = P9.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N) if gripper \
     else P8.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+
+# Link centre of mass positions
+x_com_1 = Ao.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_com_2 = Bo.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_com_3 = Co.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_com_4 = Do.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_com_5 = Eo.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_com_6 = Fo.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_com_7 = Go.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+
+x_com = Matrix([[x_com_1[0], x_com_1[1], x_com_1[2]],
+                [x_com_2[0], x_com_2[1], x_com_2[2]],
+                [x_com_3[0], x_com_3[1], x_com_3[2]],
+                [x_com_4[0], x_com_4[1], x_com_4[2]],
+                [x_com_5[0], x_com_5[1], x_com_5[2]],
+                [x_com_6[0], x_com_6[1], x_com_6[2]],
+                [x_com_7[0], x_com_7[1], x_com_7[2]]])
+
+# Mid-point position of each link
+x_mid_1 = Ao_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_mid_2 = Bo_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_mid_3 = Co_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_mid_4 = Do_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_mid_5 = Eo_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_mid_6 = Fo_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+x_mid_7 = Go_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+
+x_mid = Matrix([[x_mid_1[0], x_mid_1[1], x_mid_1[2]],
+                [x_mid_2[0], x_mid_2[1], x_mid_2[2]],
+                [x_mid_3[0], x_mid_3[1], x_mid_3[2]],
+                [x_mid_4[0], x_mid_4[1], x_mid_4[2]],
+                [x_mid_5[0], x_mid_5[1], x_mid_5[2]],
+                [x_mid_6[0], x_mid_6[1], x_mid_6[2]],
+                [x_mid_7[0], x_mid_7[1], x_mid_7[2]]])
 
 # End-effector orientation
 R = N.dcm(H).subs(dummy_dict)
@@ -258,6 +301,8 @@ C = -(forcing + G).subs({TA: 0, TB: 0, TC: 0, TD: 0, TE: 0, TF: 0, TG: 0, g: 0,
 
 # Auto-z long expressions
 pose_compact = cse([x, R])
+com_position_compact = cse(x_com)
+mid_position_compact = cse(x_mid)
 J_compact = cse(J)
 M_compact = cse(M.subs(dummy_dict))
 G_compact = cse(G.subs(dummy_dict))
@@ -274,6 +319,18 @@ with open(os.path.join(src_folder, 'forward_kinematics.py'), "w") as f:
         print(str(i[0]) + " = " + str(i[1]), file=f)
     print(code_printer.doprint(pose_compact[1][0]), file=f)
     print(code_printer.doprint(pose_compact[1][1]), file=f)
+
+# Write link com position to file
+with open(os.path.join(src_folder, 'com_positions.py'), "w") as f:
+    for i in com_position_compact[0]:
+        print(str(i[0]) + " = " + str(i[1]), file=f)
+    print(code_printer.doprint(com_position_compact[1][0]), file=f)
+
+# Write link mid-point position to file
+with open(os.path.join(src_folder, 'mid_positions.py'), "w") as f:
+    for i in mid_position_compact[0]:
+        print(str(i[0]) + " = " + str(i[1]), file=f)
+    print(code_printer.doprint(mid_position_compact[1][0]), file=f)
 
 # Write Jacobian matrix to file
 with open(os.path.join(src_folder, 'jacobian.py'), "w") as f:
