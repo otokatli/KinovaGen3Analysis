@@ -150,6 +150,23 @@ x_mid = Matrix([[x_mid_1[0], x_mid_1[1], x_mid_1[2]],
                 [x_mid_6[0], x_mid_6[1], x_mid_6[2]],
                 [x_mid_7[0], x_mid_7[1], x_mid_7[2]]])
 
+# Position of each point on the links
+joint_pos_1 = P1.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+joint_pos_2 = P2.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+joint_pos_3 = P3.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+joint_pos_4 = P4.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+joint_pos_5 = P5.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+joint_pos_6 = P6.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+joint_pos_7 = P7.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+
+joint_pos = Matrix([[joint_pos_1[0], joint_pos_1[1], joint_pos_1[2]],
+                    [joint_pos_2[0], joint_pos_2[1], joint_pos_2[2]],
+                    [joint_pos_3[0], joint_pos_3[1], joint_pos_3[2]],
+                    [joint_pos_4[0], joint_pos_4[1], joint_pos_4[2]],
+                    [joint_pos_5[0], joint_pos_5[1], joint_pos_5[2]],
+                    [joint_pos_6[0], joint_pos_6[1], joint_pos_6[2]],
+                    [joint_pos_7[0], joint_pos_7[1], joint_pos_7[2]]])
+
 # End-effector orientation
 R = N.dcm(H).subs(dummy_dict)
 
@@ -303,6 +320,7 @@ C = -(forcing + G).subs({TA: 0, TB: 0, TC: 0, TD: 0, TE: 0, TF: 0, TG: 0, g: 0,
 pose_compact = cse([x, R])
 com_position_compact = cse(x_com)
 mid_position_compact = cse(x_mid)
+joint_pos_compact = cse(joint_pos)
 J_compact = cse(J)
 M_compact = cse(M.subs(dummy_dict))
 G_compact = cse(G.subs(dummy_dict))
@@ -331,6 +349,12 @@ with open(os.path.join(src_folder, 'mid_positions.py'), "w") as f:
     for i in mid_position_compact[0]:
         print(str(i[0]) + " = " + str(i[1]), file=f)
     print(code_printer.doprint(mid_position_compact[1][0]), file=f)
+
+# Write joint positions to file
+with open(os.path.join(src_folder, 'joint_positions.py'), "w") as f:
+    for i in joint_pos_compact[0]:
+        print(str(i[0]) + " = " + str(i[1]), file=f)
+    print(code_printer.doprint(joint_pos_compact[1][0]), file=f)
 
 # Write Jacobian matrix to file
 with open(os.path.join(src_folder, 'jacobian.py'), "w") as f:
