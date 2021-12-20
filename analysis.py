@@ -4,11 +4,11 @@ from sympy import cse, Matrix, pi, symbols
 from sympy.physics.mechanics import dynamicsymbols, Point, ReferenceFrame, \
     RigidBody, inertia, KanesMethod
 from sympy.printing.numpy import NumPyPrinter
-from sympy.printing.cxx import CXX17CodePrinter
+from sympy.printing.cxx import CXX11CodePrinter
 
 
-code_printer = NumPyPrinter()
-# code_printer = CXX17CodePrinter()
+# code_printer = NumPyPrinter()
+code_printer = CXX11CodePrinter()
 
 # Whether to include the gripper into the calculation or not
 gripper = False
@@ -265,14 +265,14 @@ if gripper:
 body_list = [body_A, body_B, body_C, body_D, body_E, body_F, body_G, body_H] \
     if gripper else [body_A, body_B, body_C, body_D, body_E, body_F, body_G]
 
-force_list = [(Ao, N.z * g * mass_A),
-              (Bo, N.z * g * mass_B),
-              (Co, N.z * g * mass_C),
-              (Do, N.z * g * mass_D),
-              (Eo, N.z * g * mass_E),
-              (Fo, N.z * g * mass_F),
-              (Go, N.z * g * mass_G),
-              (Ho, N.z * g * mass_H),
+force_list = [(Ao, N.x * g * mass_A),
+              (Bo, N.x * g * mass_B),
+              (Co, N.x * g * mass_C),
+              (Do, N.x * g * mass_D),
+              (Eo, N.x * g * mass_E),
+              (Fo, N.x * g * mass_F),
+              (Go, N.x * g * mass_G),
+              (Ho, N.x * g * mass_H),
               (A, TA * A.z),
               (B, TB * B.z),
               (C, TC * C.z),
@@ -281,13 +281,13 @@ force_list = [(Ao, N.z * g * mass_A),
               (F, TF * F.z),
               (G, TG * G.z),
               (P9, Fx * N.x + Fy * N.y + Fz * N.z)] if gripper \
-    else [(Ao, N.z * g * mass_A),
-          (Bo, N.z * g * mass_B),
-          (Co, N.z * g * mass_C),
-          (Do, N.z * g * mass_D),
-          (Eo, N.z * g * mass_E),
-          (Fo, N.z * g * mass_F),
-          (Go, N.z * g * mass_G),
+    else [(Ao, N.x * g * mass_A),
+          (Bo, N.x * g * mass_B),
+          (Co, N.x * g * mass_C),
+          (Do, N.x * g * mass_D),
+          (Eo, N.x * g * mass_E),
+          (Fo, N.x * g * mass_F),
+          (Go, N.x * g * mass_G),
           (A, TA * A.z),
           (B, TB * B.z),
           (C, TC * C.z),
