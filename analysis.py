@@ -11,7 +11,7 @@ from sympy.printing.cxx import CXX11CodePrinter
 code_printer = CXX11CodePrinter()
 
 # Whether to include the gripper into the calculation or not
-gripper = False
+gripper = True
 
 q1, q2, q3, q4, q5, q6, q7 = dynamicsymbols("q1 q2 q3 q4 q5 q6 q7")
 q1p, q2p, q3p, q4p, q5p, q6p, q7p = dynamicsymbols("q1 q2 q3 q4 q5 q6 q7", 1)
