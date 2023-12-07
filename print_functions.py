@@ -12,6 +12,11 @@ def _q(file: str) -> None:
         print(f'\tconst double q{i+1} = q({i});', file=file)
     print('', file=file)
 
+def _qp(file: str) -> None:
+    for i in range(7):
+        print(f'\tconst double u{i+1} = qp({i});', file=file)
+    print('', file=file)
+
 def forward_kinematics(output_folder: str, expr_list: list) -> None:
     with open(os.path.join(output_folder, 'forwardKinematics.cpp'), "w") as f:
         # Print the preamble
@@ -100,6 +105,9 @@ def coriolis(output_folder: str, expr_list: list) -> None:
 
         # Print the joint variables
         _q(f)
+
+        # Print the generalised velocities
+        _qp(f)
 
         for i in expr_list[0]:
             print(f'\tconst double {str(i[0])} = {pu.add_std(str(i[1]))};', file=f)
