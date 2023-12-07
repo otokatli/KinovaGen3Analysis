@@ -105,7 +105,6 @@ def coriolis(output_folder: str, expr_list: list) -> None:
             print(f'\tconst double {str(i[0])} = {pu.add_std(str(i[1]))};', file=f)
         print('', file=f)
 
-        print(pu.fix_power(pu.matrix_to_eigen_stream(expr_list[1][0], 'C')))
         print(pu.matrix_to_eigen_stream(expr_list[1][0], 'C'), file=f)
         print('', file=f)
         
