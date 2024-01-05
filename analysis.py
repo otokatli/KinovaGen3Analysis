@@ -6,6 +6,9 @@ from sympy.physics.mechanics import dynamicsymbols, Point, ReferenceFrame, \
 from sympy.printing.cxx import CXX11CodePrinter
 import print_functions as pf
 
+from sympy import pprint
+
+
 
 if __name__ == '__main__':
     # Whether to include the gripper into the calculation or not
@@ -22,11 +25,15 @@ if __name__ == '__main__':
 
     # Torques associated with each joint
     TA, TB, TC, TD, TE, TF, TG = symbols("TA TB TC TD TE TF TG")
+
+    # Forces and moments acting on the end-effector
     Fx, Fy, Fz = symbols('Fx Fy Fz')
+    Mx, My, Mz = symbols('Mx My Mz')
 
     # Gravitational constant is g
     # (xg, yg, zg) is the unit vector in the gravity direction
-    g, xg, yg, zg = symbols('g xg yg zg')
+    g = symbols('g')
+    xg, yg, zg = symbols('xg yg zg')
 
     # Reference frames
     N = ReferenceFrame("N")
@@ -39,7 +46,7 @@ if __name__ == '__main__':
     G = F.orientnew("G", "Body", [-pi / 2, 0, q7], "123")
 
     # The interface module's reference frame
-    H = G.orientnew("H", "Body", [pi, 0, 0], "123")
+    H = G.orientnew("H", "Body", [0, pi, 0], "123")
 
     # Unit for distance: meter
     P0 = Point("O")
@@ -51,15 +58,6 @@ if __name__ == '__main__':
     P6 = P5.locatenew("P6", -0.1059 * E.z)
     P7 = P6.locatenew("P7", -0.1059 * F.y)
     P8 = P7.locatenew("P8", -0.0615 * G.z)
-
-    # Mid-point of each link
-    Ao_half = P1.locatenew("P1_half", 0.0054 / 2 * A.y - 0.1284 / 2 * A.z)
-    Bo_half = P2.locatenew("P2_half", -0.2014 / 2 * B.y - 0.0064 / 2 * B.z)
-    Co_half = P3.locatenew("P3_half", 0.0064 / 2 * C.y - 0.2104 / 2 * C.z)
-    Do_half = P4.locatenew("P4_half", -0.2084 / 2 * D.y - 0.0064 / 2 * D.z)
-    Eo_half = P5.locatenew("P5_half", -0.1059 / 2 * E.z)
-    Fo_half = P6.locatenew("P6_half", -0.1059 / 2 * F.y)
-    Go_half = P7.locatenew("P7_half", -0.0615 / 2 * G.z)
 
     # End-effector position  (tcp)
     if gripper:
@@ -109,62 +107,11 @@ if __name__ == '__main__':
 
     # Dummy variables for substitution
     dummy_dict = dict(zip(q + u, ["q1", "q2", "q3", "q4", "q5", "q6", "q7",
-                                "u1", "u2", "u3", "u4", "u5", "u6", "u7"]))
+                                  "u1", "u2", "u3", "u4", "u5", "u6", "u7"]))
 
     # End-effector position
     x = P9.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N) if gripper \
-        else P8.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-
-    # Link centre of mass positions
-    # x_com_1 = Ao.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_com_2 = Bo.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_com_3 = Co.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_com_4 = Do.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_com_5 = Eo.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_com_6 = Fo.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_com_7 = Go.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-
-    # x_com = Matrix([[x_com_1[0], x_com_1[1], x_com_1[2]],
-    #                 [x_com_2[0], x_com_2[1], x_com_2[2]],
-    #                 [x_com_3[0], x_com_3[1], x_com_3[2]],
-    #                 [x_com_4[0], x_com_4[1], x_com_4[2]],
-    #                 [x_com_5[0], x_com_5[1], x_com_5[2]],
-    #                 [x_com_6[0], x_com_6[1], x_com_6[2]],
-    #                 [x_com_7[0], x_com_7[1], x_com_7[2]]])
-
-    # Mid-point position of each link
-    # x_mid_1 = Ao_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_mid_2 = Bo_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_mid_3 = Co_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_mid_4 = Do_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_mid_5 = Eo_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_mid_6 = Fo_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # x_mid_7 = Go_half.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-
-    # x_mid = Matrix([[x_mid_1[0], x_mid_1[1], x_mid_1[2]],
-    #                 [x_mid_2[0], x_mid_2[1], x_mid_2[2]],
-    #                 [x_mid_3[0], x_mid_3[1], x_mid_3[2]],
-    #                 [x_mid_4[0], x_mid_4[1], x_mid_4[2]],
-    #                 [x_mid_5[0], x_mid_5[1], x_mid_5[2]],
-    #                 [x_mid_6[0], x_mid_6[1], x_mid_6[2]],
-    #                 [x_mid_7[0], x_mid_7[1], x_mid_7[2]]])
-
-    # Position of each point on the links
-    # joint_pos_1 = P1.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # joint_pos_2 = P2.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # joint_pos_3 = P3.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # joint_pos_4 = P4.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # joint_pos_5 = P5.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # joint_pos_6 = P6.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-    # joint_pos_7 = P7.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
-
-    # joint_pos = Matrix([[joint_pos_1[0], joint_pos_1[1], joint_pos_1[2]],
-    #                     [joint_pos_2[0], joint_pos_2[1], joint_pos_2[2]],
-    #                     [joint_pos_3[0], joint_pos_3[1], joint_pos_3[2]],
-    #                     [joint_pos_4[0], joint_pos_4[1], joint_pos_4[2]],
-    #                     [joint_pos_5[0], joint_pos_5[1], joint_pos_5[2]],
-    #                     [joint_pos_6[0], joint_pos_6[1], joint_pos_6[2]],
-    #                     [joint_pos_7[0], joint_pos_7[1], joint_pos_7[2]]])
+            else P8.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
 
     # End-effector orientation
     R = N.dcm(H).subs(dummy_dict)
@@ -261,8 +208,7 @@ if __name__ == '__main__':
     if gripper:
         body_H = RigidBody('body_H', Ho, H, mass_H, (inertia_H, Ho))
 
-    body_list = [body_A, body_B, body_C, body_D, body_E, body_F, body_G, body_H] \
-        if gripper else [body_A, body_B, body_C, body_D, body_E, body_F, body_G]
+    body_list = [body_A, body_B, body_C, body_D, body_E, body_F, body_G, body_H] if gripper else [body_A, body_B, body_C, body_D, body_E, body_F, body_G]
 
     force_list = [(Ao, (N.x * xg + N.y * yg + N.z * zg) * g * mass_A),
                   (Bo, (N.x * xg + N.y * yg + N.z * zg) * g * mass_B),
@@ -307,9 +253,12 @@ if __name__ == '__main__':
     forcing = KM.forcing
 
     # Gravity term
-    G = Matrix([-forcing[0].coeff(g) * g, -forcing[1].coeff(g) * g,
-                -forcing[2].coeff(g) * g, -forcing[3].coeff(g) * g,
-                -forcing[4].coeff(g) * g, -forcing[5].coeff(g) * g,
+    G = Matrix([-forcing[0].coeff(g) * g,
+                -forcing[1].coeff(g) * g,
+                -forcing[2].coeff(g) * g,
+                -forcing[3].coeff(g) * g,
+                -forcing[4].coeff(g) * g,
+                -forcing[5].coeff(g) * g,
                 -forcing[6].coeff(g) * g])
 
     C = -(forcing + G).subs({TA: 0, TB: 0, TC: 0, TD: 0, TE: 0, TF: 0, TG: 0, g: 0,
@@ -317,9 +266,6 @@ if __name__ == '__main__':
 
     # Auto-z long expressions
     pose_compact = cse([x, R])
-    # com_position_compact = cse(x_com)
-    # mid_position_compact = cse(x_mid)
-    # joint_pos_compact = cse(joint_pos)
     J_compact = cse(J)
     M_compact = cse(M.subs(dummy_dict))
     G_compact = cse(G.subs(dummy_dict))
@@ -332,24 +278,6 @@ if __name__ == '__main__':
 
     # Write end-effector position to file
     pf.forward_kinematics(src_folder, pose_compact)
-
-    # Write link com position to file
-    # with open(os.path.join(src_folder, f'com_positions.{output_file_extension}'), "w") as f:
-    #     for i in com_position_compact[0]:
-    #         print(str(i[0]) + " = " + str(i[1]), file=f)
-    #     print(code_printer.doprint(com_position_compact[1][0]), file=f)
-
-    # Write link mid-point position to file
-    # with open(os.path.join(src_folder, f'mid_positions.{output_file_extension}'), "w") as f:
-    #     for i in mid_position_compact[0]:
-    #         print(str(i[0]) + " = " + str(i[1]), file=f)
-    #     print(code_printer.doprint(mid_position_compact[1][0]), file=f)
-
-    # Write joint positions to file
-    # with open(os.path.join(src_folder, f'joint_positions.{output_file_extension}'), "w") as f:
-    #     for i in joint_pos_compact[0]:
-    #         print(str(i[0]) + " = " + str(i[1]), file=f)
-    #     print(code_printer.doprint(joint_pos_compact[1][0]), file=f)
 
     # Write Jacobian matrix to file
     pf.jacobian(src_folder, J_compact)
