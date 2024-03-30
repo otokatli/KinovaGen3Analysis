@@ -3,6 +3,7 @@ import os
 from sympy import cse
 from sympy.printing.numpy import NumPyPrinter
 from sympy.printing.cxx import CXX11CodePrinter
+from sympy.printing.julia import JuliaCodePrinter
 
 
 class Function:
@@ -15,6 +16,9 @@ class Function:
         self.code_printer = None
 
         self.file_handle = None
+
+    def open_file(self, file_extension):
+        self.file_handle = open(os.path.join(self.file_path, self.function_name + f'.{file_extension}'), 'w')
 
     def close_file(self):
         self.file_handle.close()
@@ -37,12 +41,8 @@ class PythonFunction(Function):
         super().__init__(name, path, input_args, output_args, expr)
         self.code_printer = NumPyPrinter
 
-    def open_file(self):
-        self.file_handle = open(os.path.join(self.file_path, self.function_name + '.py'), 'w')
-
-
     def print(self):
-        self.open_file()
+        self.open_file('py')
         print(f'Printing the function: {self.function_name}')
         print(f'{self._import_str()}', file=self.file_handle)
         print(f'def {self.function_name}({self._input_argument_str()}):', file=self.file_handle)
@@ -101,9 +101,6 @@ class CppFunction(Function):
         self.code_printer = CXX11CodePrinter
         self.aux_output_args = aux_output_args
 
-    def open_file(self):
-        self.file_handle = open(os.path.join(self.file_path, self.function_name + '.cpp'), 'w')
-
     def _array_to_local_var(self, var_name):
         local_var_str = ''
 
@@ -147,7 +144,7 @@ class CppFunction(Function):
         return auto_x_str
 
     def print(self):
-        self.open_file()
+        self.open_file('cpp')
         print(f'Printing the function: {self.function_name}')
         print(f'{self._header_str()}', file=self.file_handle)
         print(f'{self.output_args[list(self.output_args.keys())[0]]} {self.function_name}({self._input_argument_str()})', file=self.file_handle)
@@ -175,3 +172,61 @@ class CppFunction(Function):
 
     def _return_statement(self):
         return f'{self._tab_space()}return {list(self.output_args.keys())[0]};'
+
+class JuliaFunction(Function):
+    def __init__(self, name, path, input_args, output_arg, expr):
+        super().__init__(name, path, input_args, output_arg, expr)
+        self.code_printer = JuliaCodePrinter
+    
+    def print(self):
+        self.open_file('jl')
+        print(f'Printing the function: {self.function_name}')
+        print(f'{self._import_str()}', file=self.file_handle)
+        print(f'function {self.function_name}({self._input_argument_str()})', file=self.file_handle)
+        for input_arg in self.input_args:
+            print(self._array_to_local_var(input_arg), file=self.file_handle)
+        print(self._auto_x_to_code(), file=self.file_handle)
+        print(self._output_statement(), file=self.file_handle)
+        print(self._return_statement(), file=self.file_handle)
+        print('end', file=self.file_handle)
+        self.close_file()
+
+    def _import_str(self):
+        imp_str = 'using StaticArrays\n\n'
+
+        return imp_str
+    
+    def _input_argument_str(self):
+        return ', '.join([f'{s}::{self.input_args[s]}' for s in self.input_args])
+    
+    def _array_to_local_var(self, var_name):
+        local_var_str = ''
+
+        for i in range(7):
+            local_var_str += self._four_spaces() + f'{var_name}{i+1} = {var_name}[{i+1}]\n'
+
+        return local_var_str
+    
+    def _auto_x_to_code(self):
+        auto_x = self.expr[0]
+
+        auto_x_str = ''
+
+        for ax in auto_x:
+            auto_x_str += self._four_spaces() + self.code_printer().doprint(ax[0]) + ' = ' + self.code_printer().doprint(ax[1]) + '\n'
+
+        return auto_x_str
+    
+    def _output_statement(self):
+        output_expression = self.expr[1]
+
+        output_str = ''
+
+        for oe, oa in zip(output_expression, self.output_args):
+            output_str += self._four_spaces() + oa + ' = ' + self.code_printer().doprint(oe) + '\n'
+
+        return output_str
+    
+    def _return_statement(self):
+        return_statement = ', '.join([out_args for out_args in self.output_args])
+        return f'{self._four_spaces()}return ({return_statement})'
