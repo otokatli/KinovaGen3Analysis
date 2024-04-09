@@ -1,4 +1,3 @@
-import atexit
 import os
 from sympy import cse
 from sympy.printing.numpy import NumPyPrinter
@@ -177,7 +176,7 @@ class JuliaFunction(Function):
     def __init__(self, name, path, input_args, output_arg, expr):
         super().__init__(name, path, input_args, output_arg, expr)
         self.code_printer = JuliaCodePrinter
-    
+
     def print(self):
         self.open_file('jl')
         print(f'Printing the function: {self.function_name}')
@@ -195,10 +194,10 @@ class JuliaFunction(Function):
         imp_str = 'using StaticArrays\n\n'
 
         return imp_str
-    
+
     def _input_argument_str(self):
         return ', '.join([f'{s}::{self.input_args[s]}' for s in self.input_args])
-    
+
     def _array_to_local_var(self, var_name):
         local_var_str = ''
 
@@ -206,7 +205,7 @@ class JuliaFunction(Function):
             local_var_str += self._four_spaces() + f'{var_name}{i+1} = {var_name}[{i+1}]\n'
 
         return local_var_str
-    
+
     def _auto_x_to_code(self):
         auto_x = self.expr[0]
 
@@ -216,7 +215,7 @@ class JuliaFunction(Function):
             auto_x_str += self._four_spaces() + self.code_printer().doprint(ax[0]) + ' = ' + self.code_printer().doprint(ax[1]) + '\n'
 
         return auto_x_str
-    
+
     def _output_statement(self):
         output_expression = self.expr[1]
 
@@ -225,8 +224,85 @@ class JuliaFunction(Function):
         for oe, oa in zip(output_expression, self.output_args):
             output_str += self._four_spaces() + oa + ' = ' + self.code_printer().doprint(oe) + '\n'
 
+        # TODO the first index for matrix printing is not working, temporary solution is to set the index to 1 for all elements
+        # TODO the second index for matrix printing is not working, temporary solution is to use an index starting from 1 and increment
+        # i = 1
+        # for oe, oa in zip(output_expression, self.output_args):
+        #     # output_str += self._four_spaces() + oa + ' = ' + self.code_printer().doprint(oe) + '\n'
+
+        #     j = 1
+
+        #     # Check if the expression is (mathematically) a vector or a matrix
+        #     if oe.shape[1] == 1:
+        #         for oei in oe:
+        #             output_str += self._four_spaces() + f'{oa}[{j}] = ' + self.code_printer().doprint(oei) + '\n'
+        #             j += 1
+        #     else:
+        #         for oei in oe:
+        #             output_str += self._four_spaces() + f'{oa}[{i}, {j}] = ' + self.code_printer().doprint(oei) + '\n'
+        #             j += 1
+
+
         return output_str
-    
+
     def _return_statement(self):
         return_statement = ', '.join([out_args for out_args in self.output_args])
         return f'{self._four_spaces()}return ({return_statement})'
+
+if __name__ == '__main__':
+    # import os
+    # from pathlib import Path
+    from sympy import Matrix, pi, symbols
+    from sympy.physics.mechanics import dynamicsymbols, mechanics_printing, Point, ReferenceFrame, \
+        RigidBody, inertia, KanesMethod
+    # from function import PythonFunction
+    # from function import CppFunction
+    # from function import JuliaFunction
+
+    mechanics_printing(pretty_print=True)
+
+    q1, q2, q3, q4, q5, q6, q7 = dynamicsymbols("q1 q2 q3 q4 q5 q6 q7")
+    q1p, q2p, q3p, q4p, q5p, q6p, q7p = dynamicsymbols("q1 q2 q3 q4 q5 q6 q7", 1)
+    u1, u2, u3, u4, u5, u6, u7 = dynamicsymbols("u1 u2 u3 u4 u5 u6 u7")
+    u1p, u2p, u3p, u4p, u5p, u6p, u7p = dynamicsymbols("u1 u2 u3 u4 u5 u6 u7", 1)
+
+    # Lists of generalized coordinates and speeds
+    q = [q1, q2, q3, q4, q5, q6, q7]
+    qp = [q1p, q2p, q3p, q4p, q5p, q6p, q7p]
+    u = [u1, u2, u3, u4, u5, u6, u7]
+
+    dummy_dict = dict(zip(
+                          q + qp + u,
+                          ["q1", "q2", "q3", "q4", "q5", "q6", "q7"] +
+                          ["qp1", "qp2", "qp3", "qp4", "qp5", "qp6", "qp7"] +
+                          ["u1", "u2", "u3", "u4", "u5", "u6", "u7"]
+                         )
+                     )
+
+    N = ReferenceFrame("N")
+    A = N.orientnew("A", "Body", [pi, 0, q1], "123")
+    B = A.orientnew("B", "Body", [pi / 2, 0, q2], "123")
+    C = B.orientnew("C", "Body", [-pi / 2, 0, q3], "123")
+    D = C.orientnew("D", "Body", [pi / 2, 0, q4], "123")
+    E = D.orientnew("E", "Body", [-pi / 2, 0, q5], "123")
+    F = E.orientnew("F", "Body", [pi / 2, 0, q6], "123")
+    G = F.orientnew("G", "Body", [-pi / 2, 0, q7], "123")
+    H = G.orientnew("H", "Body", [pi, 0, 0], "123")
+
+    P0 = Point("O")
+    P1 = P0.locatenew("P1", 0.15643 * N.z)
+    P2 = P1.locatenew("P2", 0.005375 * A.y - 0.12838 * A.z)
+    P3 = P2.locatenew("P3", -0.21038 * B.y - 0.006375 * B.z)
+    P4 = P3.locatenew("P4", 0.006375 * C.y - 0.21038 * C.z)
+    P5 = P4.locatenew("P5", -0.20843 * D.y - 0.006375 * D.z)
+    P6 = P5.locatenew("P6", 0.00017505 * E.y - 0.10593 * E.z)
+    P7 = P6.locatenew("P7", -0.10593 * F.y - 0.00017505 * F.z)
+    P8 = P7.locatenew("P8", -0.0615 * G.z)
+
+    x = P8.pos_from(P0).express(N).subs(dummy_dict).to_matrix(N)
+
+    R = N.dcm(H).subs(dummy_dict)
+
+    forward_kinematics_printer_julia = JuliaFunction('forward_kinematics', '.', {'q':'SVector{7, Float64}'}, {'x': 'SVector{3, Float64}', 'R': 'SMatrix{3, 3, Float64}'}, [x, R])
+    forward_kinematics_printer_julia.print()
+
