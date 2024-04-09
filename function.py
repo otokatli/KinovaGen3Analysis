@@ -221,26 +221,26 @@ class JuliaFunction(Function):
 
         output_str = ''
 
-        for oe, oa in zip(output_expression, self.output_args):
-            output_str += self._four_spaces() + oa + ' = ' + self.code_printer().doprint(oe) + '\n'
+        # for oe, oa in zip(output_expression, self.output_args):
+        #     output_str += self._four_spaces() + oa + ' = ' + self.code_printer().doprint(oe) + '\n'
 
         # TODO the first index for matrix printing is not working, temporary solution is to set the index to 1 for all elements
         # TODO the second index for matrix printing is not working, temporary solution is to use an index starting from 1 and increment
-        # i = 1
-        # for oe, oa in zip(output_expression, self.output_args):
-        #     # output_str += self._four_spaces() + oa + ' = ' + self.code_printer().doprint(oe) + '\n'
+        i = 1
+        for oe, oa in zip(output_expression, self.output_args):
+            # output_str += self._four_spaces() + oa + ' = ' + self.code_printer().doprint(oe) + '\n'
 
-        #     j = 1
+            j = 1
 
-        #     # Check if the expression is (mathematically) a vector or a matrix
-        #     if oe.shape[1] == 1:
-        #         for oei in oe:
-        #             output_str += self._four_spaces() + f'{oa}[{j}] = ' + self.code_printer().doprint(oei) + '\n'
-        #             j += 1
-        #     else:
-        #         for oei in oe:
-        #             output_str += self._four_spaces() + f'{oa}[{i}, {j}] = ' + self.code_printer().doprint(oei) + '\n'
-        #             j += 1
+            # Check if the expression is (mathematically) a vector or a matrix
+            if oe.shape[1] == 1:
+                for oei in oe:
+                    output_str += self._four_spaces() + f'{oa}[{j}] = ' + self.code_printer().doprint(oei) + '\n'
+                    j += 1
+            else:
+                for oei in oe:
+                    output_str += self._four_spaces() + f'{oa}[{i}, {j}] = ' + self.code_printer().doprint(oei) + '\n'
+                    j += 1
 
 
         return output_str
