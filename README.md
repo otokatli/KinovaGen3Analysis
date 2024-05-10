@@ -18,3 +18,6 @@ function for the robot's
     - Mass matrix
     - Coriolis term multiplied with joint velocities
     - Gravity term
+
+
+![ The frames of the robot links are defined as ](./robot_frames.png)
