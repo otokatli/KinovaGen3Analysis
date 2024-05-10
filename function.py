@@ -162,7 +162,7 @@ class CppFunction(Function):
         self.close_file()
 
     def _header_str(self):
-        header_str = '\\include "Eigen/Dense"\n' + '\\include <cmath>\n'
+        header_str = '#include "Eigen/Dense"\n' + '#include <cmath>\n'
 
         return header_str
 
